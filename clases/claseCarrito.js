@@ -48,7 +48,6 @@ class Carrito{
             contenido.push(objeto)
             await fs.promises.writeFile(this.fileName, JSON.stringify(contenido));
             return objeto.id
-            // return objeto.id
 
     }catch(error){
         throw error
@@ -62,8 +61,8 @@ class Carrito{
         const objeto = JSON.parse(contenido)
 
         let objetoId = objeto.find((x) => x.id == id);
-        
-        return objetoId;
+
+        return objetoId
         
        }catch(error){
             throw error
@@ -98,7 +97,7 @@ class Carrito{
         throw error
        }
    }
-
+   //elimina un producto del carrito
    async deleteProductInCarrito(idCarrito,idProducto){
     try{
      const contenido = await fs.promises.readFile(this.fileName)
@@ -114,6 +113,7 @@ class Carrito{
      throw error
     }
   }
+  //guarda un producto al carrito
   async saveProductInCart(idCarrito,idProducto){
     try{
         await existeArchivo(this.fileName)
@@ -128,8 +128,9 @@ class Carrito{
         //MI ARRAY DE PRODUCTOS
         const leerProductos = JSON.parse(fs.readFileSync("productos.txt"))
         let objetoId = leerProductos.find((x) => x.id == idProducto);
-        misproductos.push(objetoId)
 
+        misproductos.push(objetoId)
+        
         await fs.promises.writeFile(this.fileName, JSON.stringify(contenido));
 
     }catch(error){

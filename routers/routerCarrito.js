@@ -2,7 +2,6 @@ const express= require("express")
 const routerCarrito = express.Router()
 const Carrito = require("../clases/claseCarrito")
 const claseCarrito= new Carrito("carrito.txt")
-
 const fs=require("fs")
 
 //Funciones
@@ -24,7 +23,8 @@ const existeArchivo = async (fileName) => {
     }
 };
 
-//ROUTER CARRITO
+//----------ROUTER CARRITO
+//Devuelve todos los carritos creados
 routerCarrito.get("/", (req,res ) => {
     const devolverCarrito = async() => {
         try{
@@ -38,6 +38,7 @@ routerCarrito.get("/", (req,res ) => {
     devolverCarrito()
 })
 
+//CREA UN NUEVO CARRITO
 routerCarrito.post("/", (req,res) => {
     const creoCarrito = async() => {
         try{
@@ -51,6 +52,7 @@ routerCarrito.post("/", (req,res) => {
     creoCarrito()
 })
 
+//AGREGA AL CARRITO, PRODUCTOS
 routerCarrito.post("/:id/productos", (req,res) => {
     const agregarProductos = async() => {
         try{
@@ -59,7 +61,9 @@ routerCarrito.post("/:id/productos", (req,res) => {
             //algunas validaciones
             if(isNaN(idCarrito)) return res.status(400).send({error: 'El parametro no es un numero'});
             if(isNaN(idProducto)) return res.status(400).send({error: 'El ID NO es un numero'});
+            
             await claseCarrito.saveProductInCart(idCarrito,idProducto)
+            
             res.send(`Producto ${idProducto} agregado al carrito ID: ${idCarrito}`)
         }catch(error){
             throw new Error(error)
@@ -68,6 +72,7 @@ routerCarrito.post("/:id/productos", (req,res) => {
     agregarProductos()
 })
 
+//ELIMINA EL CARRITO POR SU ID
 routerCarrito.delete("/:id", (req,res) => {
     const borrarCarrito = async() => {
         try{
@@ -88,6 +93,7 @@ routerCarrito.delete("/:id", (req,res) => {
     borrarCarrito()
 })
 
+//DEVUELVO TODOS LOS PRODUCTOS CARGADOS EN EL CARRITO(ID)
 routerCarrito.get("/:id/productos", (req,res) => {
     const traerProductos = async() => {
         try{
@@ -106,6 +112,7 @@ routerCarrito.get("/:id/productos", (req,res) => {
     traerProductos()
 })
 
+//BORRO EN EL CARRITO SELECCIONADO, EL PRODUCTO POR SU ID 
 routerCarrito.delete("/:id/productos/:id_prod", (req,res) => {
     //Eliminar un producto del carrito por su id de carrito y de producto
     const eliminarProducto = async() => {
