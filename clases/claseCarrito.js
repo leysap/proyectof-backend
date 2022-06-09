@@ -19,20 +19,23 @@ const creandoArchivo = async (fileName) => {
     }
   };
   
-class Contenedor{
+class Carrito{
 
     constructor(fileName){
         this.fileName= fileName
     }
 
     //save(Object): Number - Recibe un objeto, lo guarda en el archivo, devuelve el id asignado.
-   async save(objeto){
+   async save(){
     try{
         await existeArchivo(this.fileName)
-    
+        let objeto= {}
         const contenido = JSON.parse(await fs.promises.readFile(this.fileName))
+        objeto.timestamp= Date.now()
+        objeto.productos = []
         let longitud = contenido.length;
         let index = 0
+        objeto.id= index
         
             if (longitud == 0) {
                 index = 1;
@@ -45,6 +48,7 @@ class Contenedor{
             contenido.push(objeto)
             await fs.promises.writeFile(this.fileName, JSON.stringify(contenido));
             return objeto.id
+            // return objeto.id
 
     }catch(error){
         throw error
@@ -68,16 +72,16 @@ class Contenedor{
 
    // getAll(): Object[] - Devuelve un array con los objetos presentes en el archivo.
    async getAll(){
-    try{
-        await existeArchivo(this.fileName)
+        try{
+            await existeArchivo(this.fileName)
 
-        const contenidoCrudo = await fs.promises.readFile(this.fileName)
-        const contenido = JSON.parse(contenidoCrudo)
-        return contenido;
-    }catch(error){
-        console.log("Error en getAll: ", error)
-        return [];
-    }
+            const contenidoCrudo = await fs.promises.readFile(this.fileName)
+            const contenido = JSON.parse(contenidoCrudo)
+            return contenido;
+        }catch(error){
+            console.log("Error en getAll: ", error)
+            return [];
+        }
    }
 
    // deleteById(Number): void - Elimina del archivo el objeto con el id buscado.
@@ -94,40 +98,52 @@ class Contenedor{
         throw error
        }
    }
+
+   async deleteProductInCarrito(idCarrito,idProducto){
+    try{
+     const contenido = await fs.promises.readFile(this.fileName)
+     const contenidoParseado = JSON.parse(contenido)
+
+    let carritoEncontrado = contenidoParseado.find(carrito => carrito.id == idCarrito)
+    let carritoSinProd = await carritoEncontrado.productos.filter(prod => prod.id !== parseInt(idProducto));
+    carritoEncontrado.productos = carritoSinProd;
+
+    await fs.promises.writeFile(this.fileName, JSON.stringify(contenidoParseado))
+
+    }catch(error){
+     throw error
+    }
+  }
+  async saveProductInCart(idCarrito,idProducto){
+    try{
+        await existeArchivo(this.fileName)
+
+        const contenidoCrudo = await fs.promises.readFile(this.fileName)
+        const contenido = JSON.parse(contenidoCrudo)
+
+        //ME TRAIGO EL CARRITO SELECCIONADO POR SU ID 
+        const carritoEncontrado =  contenido.find(carrito => carrito.id == idCarrito)
+        const misproductos= carritoEncontrado.productos
+
+        //MI ARRAY DE PRODUCTOS
+        const leerProductos = JSON.parse(fs.readFileSync("productos.txt"))
+        let objetoId = leerProductos.find((x) => x.id == idProducto);
+        misproductos.push(objetoId)
+
+        await fs.promises.writeFile(this.fileName, JSON.stringify(contenido));
+
+    }catch(error){
+        console.log("Error", error)
+        return [];
+    }
+}
+
     // deleteAll(): void - Elimina todos los objetos presentes en el archivo.
    async deleteAll(){
        await creandoArchivo(this.fileName)
    }
 }
 
-const ejecutarProductos = async () => {
-    const productos = new Contenedor("productos.txt")
-    // console.log('CREO MIS OBJETOS CON SUS ID CORRESPONDIENTES: ')
-    // console.log(await productos.save({title: "Computadora", price: 112000, thumbnail: "/ruta-random"}))
-    // console.log(await productos.save({title: "Carpeta", price: 1200, thumbnail: "/ruta-random"}))
-    // console.log(await productos.save({title: "Lapicera", price: 60, thumbnail: "/ruta-random"}))
-    // console.log(await productos.save({title: "Silla", price: 35000, thumbnail: "/ruta-random"}))
-
-    // console.log("TRAIGO TODOS MIS OBJETOS-PRODUCTOS:")
-    // const contenido = await productos.getAll()
-    // console.log(contenido)
-
-    // console.log("DEVUELVO UN PRODUCTO CON EL ID 3:")
-    // const mostrarid = await productos.getById(3)
-    // console.log(mostrarid)
-
-    // // console.log("VOY A ELIMINAR UN OBJETO CON EL ID 2")
-    // // await productos.deleteById(2)
-
-    // console.log("DEVUELVO MI ARRAY DE OBJETOS SIN EL PRODUCTO ELIMINADO:")
-    // console.log(await productos.getAll())
-    
-    // console.log("VACIO EL ARCHIVO")
-    // await productos.deleteAll()
-}
-
-// ejecutarProductos()
-
-module.exports= Contenedor
+module.exports= Carrito
 
 
