@@ -1,0 +1,87 @@
+// const express = require("express")
+// // const {Router}= express
+// const routerProductos= express.Router()
+// const {db} = require("../../config/servidorFirebase")
+// const productosDaoFirebase = require("../../daos/productos/productosDaoFirebase")
+
+// const servidorFirebase= new productosDaoFirebase()
+
+// routerProductos.use(express.json());
+// routerProductos.use(express.urlencoded({ extended: true }));
+
+// routerProductos.get("/" ,async (req,res) => {
+//     const devolverProductos = async() => {
+//         try{
+//             // const datos= db.collection("productos")
+//             // await servidorFirebase.getContentDB(datos)
+//             const query= colecciones
+//             const resultados = (await query.get()).docs;
+//             console.log(resultados.map(resultado => resultado.data()))
+//             res.send("objetos traido")
+
+//         }catch(error){
+//             throw new Error(error)
+//         }
+//     }
+//     devolverProductos()
+// })
+
+// routerProductos.get("/:id",async (req,res) => {
+//     const devolverProductos = async() => {
+//         try{
+            
+            
+//         }catch(error){
+//             throw new Error(error)
+//         }
+//     }
+//     devolverProductos()
+// })
+
+// routerProductos.post("/", (req,res) => {    
+//     const agregarProducto = async() => {
+//         try{
+//             //firebase 
+//             console.log(req.body)
+
+//             const productos= db.collection("productos")
+//             const nuevoObjeto= req.body
+//             const query= productos.doc("lapiz")
+//             await query.create(nuevoObjeto)
+//             res.send({objeto:"objeto creado"})
+
+//             // await productosFirebase.saveProductInFirebase(req.body)
+//             // res.send("producto guardado en firebase")
+            
+//         }catch(error){
+//             throw new Error("este es el errorrrrrrr",error)
+//         }
+//     }
+//     agregarProducto()
+// })
+
+// routerProductos.put("/:id", (req,res) => {    
+//     const actualizarProduct = async() => {
+//         try{
+            
+
+//         }catch(error){
+//             throw new Error(error)
+//         }
+//     }
+//     actualizarProduct()
+// })
+
+// routerProductos.delete("/:id", (req,res) => {    
+//     const eliminarIdProducto = async() => {
+//         try{
+            
+
+//         }catch(error){
+//             throw new Error(error)
+//         }
+//     }
+//     eliminarIdProducto()
+// })
+
+// module.exports= {routerProductos}

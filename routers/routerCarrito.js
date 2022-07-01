@@ -1,8 +1,9 @@
 const express= require("express")
 const routerCarrito = express.Router()
-const Carrito = require("../clases/claseCarrito")
-const claseCarrito= new Carrito("carrito.txt")
 const fs=require("fs")
+
+const {CarritoDaoFile} = require("../daos/carritos/carritoDaoFile")
+const carritoFile= new CarritoDaoFile()
 
 //Funciones
 const creandoArchivo = async (fileName) => {
@@ -29,8 +30,8 @@ routerCarrito.get("/", (req,res ) => {
     const devolverCarrito = async() => {
         try{
             await existeArchivo("carrito.txt")
-            const data= await claseCarrito.getAll()
-            res.send({carritos: data})
+            const data= await carritoFile.getAll()
+            res.send(data)
         }catch(error){
             throw new Error(error)
         }
@@ -43,7 +44,8 @@ routerCarrito.post("/", (req,res) => {
     const creoCarrito = async() => {
         try{
             await existeArchivo("carrito.txt")
-            const carrito = await claseCarrito.save()
+            const carrito = await carritoFile.saveCarrito()
+            await carritoFile.save(carrito)
             res.send({carrito: carrito})
         }catch(error){
             throw new Error(error)
@@ -62,9 +64,12 @@ routerCarrito.post("/:id/productos", (req,res) => {
             if(isNaN(idCarrito)) return res.status(400).send({error: 'El parametro no es un numero'});
             if(isNaN(idProducto)) return res.status(400).send({error: 'El ID NO es un numero'});
             
-            await claseCarrito.saveProductInCart(idCarrito,idProducto)
+            const contenido=await carritoFile.addProductInCarrito(idCarrito,idProducto)          
+            await carritoFile.saveInFile(contenido)
             
-            res.send(`Producto ${idProducto} agregado al carrito ID: ${idCarrito}`)
+            const carritoID=await carritoFile.getById(idCarrito)
+            const productInCarrito=await carritoFile.productsInCarrito(carritoID)
+            res.send(productInCarrito)
         }catch(error){
             throw new Error(error)
         }
@@ -76,16 +81,15 @@ routerCarrito.post("/:id/productos", (req,res) => {
 routerCarrito.delete("/:id", (req,res) => {
     const borrarCarrito = async() => {
         try{
-            const idProducto = parseInt(req.params.id);
-            if(isNaN(idProducto)) return res.status(400).send({error: 'El parametro no es un numero'});
-
-            const data = await claseCarrito.getAll()
-            const carritoEncontrado =  data.find(producto => producto.id == idProducto)
+            const idCarrito = parseInt(req.params.id);
+            if(isNaN(idCarrito)) return res.status(400).send({error: 'El parametro no es un numero'});
+            const data = await carritoFile.getAll()
+            const carritoEncontrado =  data.find(producto => producto.id == idCarrito)
 
             if(!carritoEncontrado) return res.status(404).send({error:'Carrito no encontrado'})
-            else await claseCarrito.deleteById(idProducto)
+            else await carritoFile.deleteById(idCarrito)
 
-            res.send({carritoIdEliminado: idProducto})
+            res.send(await carritoFile.getAll())
         }catch(error){
             throw new Error(error)
         }
@@ -100,10 +104,11 @@ routerCarrito.get("/:id/productos", (req,res) => {
             const idCarrito = parseInt(req.params.id);
             if(isNaN(idCarrito)) return res.status(400).send({error: 'El parametro no es un numero'});
 
-            const carritoEncontrado = await claseCarrito.getById(idCarrito)
+            const carritoEncontrado = await carritoFile.getById(idCarrito)
+            const products=await carritoFile.productsInCarrito(carritoEncontrado)
             if(!carritoEncontrado) return res.status(404).send({error:'Carrito no encontrado'})
 
-            res.send({productosEnCarrito: carritoEncontrado.productos})
+            res.send({productosEnCarrito: products})
 
         }catch(error){
             throw new Error(error)
@@ -119,9 +124,9 @@ routerCarrito.delete("/:id/productos/:id_prod", (req,res) => {
         try{
             const idCarrito= parseInt(req.params.id)
             const idProducto= parseInt(req.params.id_prod)
-            await claseCarrito.deleteProductInCarrito(idCarrito,idProducto)
-
-            res.send(`Producto ${idProducto} eliminado exitosamente en el carrito ID: ${idCarrito}`)
+            await carritoFile.deleteProductInCarrito(idCarrito,idProducto)
+    
+            res.send(await carritoFile.getById(idCarrito))
         }catch(error){
             throw new Error(error)
         }

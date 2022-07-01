@@ -1,13 +1,16 @@
 const express = require("express")
 const routerProductos = express.Router()
 const fs= require("fs")
-const Contenedor  = require("../clases/claseProducto")
-const claseContenedor = new Contenedor("productos.txt")
+// const Contenedor  = require("../clases/claseProducto")
+// const claseContenedor = new Contenedor("productos.txt")
 const middlewareAutenticacion = require("../middlewares/middlewareAutenticacion")
 const middlewareAutorizacion = require("../middlewares/middlewareAutorizacion")
 
 routerProductos.use(express.json());
 routerProductos.use(express.urlencoded({ extended: true }));
+
+const {ProductosDaoFile}= require("../daos/productos/productosDaoFile")
+const productosFile= new ProductosDaoFile()
 
 //FUNCIONES
 const creandoArchivo = async (fileName) => {
@@ -34,7 +37,7 @@ routerProductos.get("/" ,middlewareAutenticacion,async (req,res) => {
     const devolverProductos = async() => {
         try{
             await existeArchivo("productos.txt")
-            const data = await claseContenedor.getAll()
+            const data = await productosFile.getAll()
             if(data.length == 0) return res.json("No se encuentran datos cargados")  
             else res.send(data)
         }catch(error){
@@ -49,10 +52,10 @@ routerProductos.get("/:id",middlewareAutenticacion,async (req,res) => {
             await existeArchivo("productos.txt")
             const idProducto = parseInt(req.params.id);
             if(isNaN(idProducto)) return res.status(400).send({error: 'El parametro no es un numero'});
-            const productoEncontrado = await claseContenedor.getById(idProducto)
+            const productoEncontrado = await productosFile.getById(idProducto)
 
             if(!productoEncontrado) res.status(404).send({error:'Producto no existente'})
-            else res.send(productoEncontrado)
+            else res.send(productoEncontrado) 
         }catch(error){
             throw new Error(error)
         }
@@ -63,16 +66,12 @@ routerProductos.get("/:id",middlewareAutenticacion,async (req,res) => {
 routerProductos.post("/",middlewareAutenticacion,middlewareAutorizacion, (req,res) => {    
     const agregarProducto = async() => {
         try{
-            await existeArchivo("productos.txt")
-            const objetoNuevo = await claseContenedor.createProduct(req.body)
-            const objetoId= await claseContenedor.save(objetoNuevo)
-
-            res.send({
-                objetoNuevo: objetoNuevo,
-                productId: objetoId
-            }) 
+            const productoNuevo= req.body
+            const objeto=await productosFile.saveProduct(productoNuevo)
+            await productosFile.save(objeto)
+            res.send({objetoGuardado:objeto})
         }catch(error){
-            throw new Error(error)
+            throw new Error("ESTE ES EL ERROR:",error)
         }
     }
     agregarProducto()
@@ -81,8 +80,11 @@ routerProductos.post("/",middlewareAutenticacion,middlewareAutorizacion, (req,re
 routerProductos.put("/:id",middlewareAutenticacion,middlewareAutorizacion, (req,res) => {    
     const actualizarProduct = async() => {
         try{
-            const productoAnterior = await claseContenedor.getById(req.params.id)
-            const productoActualizado= await claseContenedor.updateProductById(parseInt(req.params.id),req.body)
+            const idProducto=req.params.id
+            const productoActualizar= req.body
+
+            const productoAnterior = await productosFile.getById(idProducto)
+            const productoActualizado=await productosFile.updateProductById(idProducto,productoActualizar)
 
             res.send({productoAnt: productoAnterior,productoActualizado: productoActualizado})
         }catch(error){
@@ -99,10 +101,10 @@ routerProductos.delete("/:id", middlewareAutenticacion,middlewareAutorizacion,(r
             //validacion
             if(isNaN(idProducto)) return res.status(400).send({error: 'El parametro no es un numero'});
 
-            const productoEncontrado = await claseContenedor.getById(idProducto)
+            const productoEncontrado = await productosFile.getById(idProducto)
 
             if(!productoEncontrado) res.status(404).send({error:'Producto no encontrado'})
-            else await claseContenedor.deleteById(idProducto)
+            else await productosFile.deleteById(idProducto)
 
             res.send({
                 productoEliminado: productoEncontrado,

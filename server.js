@@ -1,7 +1,19 @@
 const express = require("express")
 const app = express()
-const {routerProductos}= require("./routers/routerProductos")
-const {routerCarrito} = require("./routers/routerCarrito")
+const dotenv= require("dotenv")
+dotenv.config()
+
+//ROUTERS:MONGO, FIREBASE, TXT,MEMORY
+//DE ACUERDO AL MOTOR DE BASE DE DATOS SE VA DESCOMENTANDO PARA USARLO 
+
+// const {routerProductos}= require("./routers/routerProductos")
+// const {routerCarrito} = require("./routers/routerCarrito");
+const {routerProductos}= require("./routers/routerProductosMongoDb")
+const {routerCarrito}= require("./routers/routerCarritoMongo")
+// const{routerProductos}=require("./routers/firestore/routerProductosFirebase")
+// const{routerCarrito}=require("./routers/firestore/routerCarritoFirebase")
+// const {routerProductos}= require("./routers/memory/routerProductsMemory")
+// const {routerCarrito}= require("./routers/memory/routerCarritoMemory")
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
