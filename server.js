@@ -8,10 +8,10 @@ dotenv.config()
 
 // const {routerProductos}= require("./routers/routerProductos")
 // const {routerCarrito} = require("./routers/routerCarrito");
-const {routerProductos}= require("./routers/routerProductosMongoDb")
-const {routerCarrito}= require("./routers/routerCarritoMongo")
-// const{routerProductos}=require("./routers/firestore/routerProductosFirebase")
-// const{routerCarrito}=require("./routers/firestore/routerCarritoFirebase")
+// const {routerProductos}= require("./routers/routerProductosMongoDb")
+// const {routerCarrito}= require("./routers/routerCarritoMongo")
+const{routerProductos}=require("./routers/firestore/routerProductosFirebase")
+const{routerCarrito}=require("./routers/firestore/routerCarritoFirebase")
 // const {routerProductos}= require("./routers/memory/routerProductsMemory")
 // const {routerCarrito}= require("./routers/memory/routerCarritoMemory")
 
